@@ -7,6 +7,7 @@ export type SalesChannelFactoryData = {
   description?: string
   is_disabled?: boolean
   id?: string
+  is_default?: boolean
 }
 
 export const simpleSalesChannelFactory = async (
@@ -20,7 +21,7 @@ export const simpleSalesChannelFactory = async (
 
   const manager = connection.manager
 
-  const salesChannel = manager.create(SalesChannel, {
+  let salesChannel = manager.create(SalesChannel, {
     id: data.id ?? `simple-id-${Math.random() * 1000}`,
     name: data.name || faker.name.firstName(),
     description: data.description || faker.name.lastName(),
@@ -28,5 +29,13 @@ export const simpleSalesChannelFactory = async (
       typeof data.is_disabled !== undefined ? data.is_disabled : false,
   })
 
-  return await manager.save(salesChannel)
+  salesChannel = await manager.save(salesChannel)
+
+  if (data.is_default) {
+    await manager.query(
+      `UPDATE store SET default_sales_channel_id = '${salesChannel.id}'`
+    )
+  }
+
+  return salesChannel
 }
