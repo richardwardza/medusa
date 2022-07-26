@@ -89,40 +89,10 @@ import SalesChannelFeatureFlag from "../../../../loaders/feature-flags/sales-cha
  */
 export default async (req, res) => {
   const { id } = req.params
-
-  const validated = await validator(StorePostCartsCartReq, req.body)
+  const validated = req.validatedBody as StorePostCartsCartReq
 
   const cartService: CartService = req.scope.resolve("cartService")
-
-  // Update the cart
-  const { shipping_address, billing_address, ...rest } = validated
-
-  const cartDataToUpdate: CartUpdateProps = { ...rest }
-  if (typeof shipping_address === "string") {
-    cartDataToUpdate.shipping_address_id = shipping_address
-  } else {
-    cartDataToUpdate.shipping_address = shipping_address
-  }
-
-  if (typeof billing_address === "string") {
-    cartDataToUpdate.billing_address_id = billing_address
-  } else {
-    cartDataToUpdate.billing_address = billing_address
-  }
-
-  if (typeof validated.sales_channel_id !== "undefined") {
-    const salesChannelService: SalesChannelService = req.scope.resolve("salesChannelService")
-    const salesChannel = await salesChannelService.retrieve(validated.sales_channel_id)
-    if (salesChannel.is_disabled) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        `Unable to update Cart with disabled Sales Channel "${salesChannel.name}"`
-      )
-    }
-    cartDataToUpdate["sales_channel_id"] = salesChannel.id
-  }
-
-  await cartService.update(id, cartDataToUpdate)
+  await cartService.update(id, validated)
 
   // If the cart has payment sessions update these
   const updated = await cartService.retrieve(id, {

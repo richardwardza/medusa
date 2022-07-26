@@ -2,7 +2,8 @@ import { Router } from "express"
 import "reflect-metadata"
 import { Cart, Order, Swap } from "../../../../"
 import { DeleteResponse, EmptyQueryParams } from "../../../../types/common"
-import middlewares, { transformQuery } from "../../../middlewares"
+import middlewares, { transformBody, transformQuery } from "../../../middlewares"
+import { StorePostCartsCartReq } from "./update-cart";
 const route = Router()
 
 export default (app, container) => {
@@ -37,7 +38,11 @@ export default (app, container) => {
     middlewares.wrap(require("./create-cart").default)
   )
 
-  route.post("/:id", middlewares.wrap(require("./update-cart").default))
+  route.post(
+    "/:id",
+    transformBody(StorePostCartsCartReq),
+    middlewares.wrap(require("./update-cart").default)
+  )
 
   route.post(
     "/:id/complete",

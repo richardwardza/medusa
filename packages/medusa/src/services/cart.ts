@@ -41,6 +41,7 @@ import RegionService from "./region"
 import ShippingOptionService from "./shipping-option"
 import TaxProviderService from "./tax-provider"
 import TotalsService from "./totals"
+import { SalesChannelService } from "./index"
 
 type InjectedDependencies = {
   manager: EntityManager
@@ -50,6 +51,7 @@ type InjectedDependencies = {
   paymentSessionRepository: typeof PaymentSessionRepository
   lineItemRepository: typeof LineItemRepository
   eventBusService: EventBusService
+  salesChannelService: SalesChannelService
   taxProviderService: TaxProviderService
   paymentProviderService: PaymentProviderService
   productService: ProductService
@@ -92,6 +94,7 @@ class CartService extends TransactionBaseService<CartService> {
   protected readonly eventBus_: EventBusService
   protected readonly productVariantService_: ProductVariantService
   protected readonly productService_: ProductService
+  protected readonly salesChannelService_: SalesChannelService
   protected readonly regionService_: RegionService
   protected readonly lineItemService_: LineItemService
   protected readonly paymentProviderService_: PaymentProviderService
@@ -129,6 +132,7 @@ class CartService extends TransactionBaseService<CartService> {
     customShippingOptionService,
     lineItemAdjustmentService,
     priceSelectionStrategy,
+    salesChannelService,
   }: InjectedDependencies) {
     // eslint-disable-next-line prefer-rest-params
     super(arguments[0])
@@ -155,6 +159,7 @@ class CartService extends TransactionBaseService<CartService> {
     this.taxProviderService_ = taxProviderService
     this.lineItemAdjustmentService_ = lineItemAdjustmentService
     this.priceSelectionStrategy_ = priceSelectionStrategy
+    this.salesChannelService_ = salesChannelService
   }
 
   protected transformQueryForTotals_(
@@ -774,8 +779,12 @@ class CartService extends TransactionBaseService<CartService> {
         }
 
         if (typeof data.region_id !== "undefined") {
+          const shippingAddress =
+            typeof data.shipping_address !== "string"
+              ? data.shipping_address
+              : {}
           const countryCode =
-            (data.country_code || data.shipping_address?.country_code) ?? null
+            (data.country_code || shippingAddress?.country_code) ?? null
           await this.setRegion_(cart, data.region_id, countryCode)
         }
 
@@ -889,6 +898,16 @@ class CartService extends TransactionBaseService<CartService> {
     cart: Cart,
     newSalesChannelId: string
   ): Promise<void> {
+    const salesChannel = await this.salesChannelService_.retrieve(
+      newSalesChannelId
+    )
+    if (salesChannel.is_disabled) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `The given sales channel "${salesChannel.name}" is disabled and the cart cannot be assigned to a it.`
+      )
+    }
+
     const productIds = cart.items.map((item) => item.variant.product_id)
     const productsToKeep = await this.productService_
       .withTransaction(this.manager_)
