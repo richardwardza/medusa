@@ -4,16 +4,16 @@ import { LineItem } from "../../models"
 import { LineItemRepository } from "../../repositories/line-item"
 
 export const LineItemServiceMock = {
-  withTransaction: function() {
+  withTransaction: function () {
     return this
   },
-  create: jest.fn().mockImplementation(data => {
+  create: jest.fn().mockImplementation((data) => {
     return Promise.resolve({ ...data })
   }),
-  update: jest.fn().mockImplementation(data => {
+  update: jest.fn().mockImplementation((data) => {
     return Promise.resolve({ ...data })
   }),
-  validate: jest.fn().mockImplementation(data => {
+  validate: jest.fn().mockImplementation((data) => {
     if (data.title === "invalid lineitem") {
       throw new Error(`"content" is required`)
     }
@@ -62,11 +62,5 @@ export const LineItemServiceMock = {
 const mock = jest.fn().mockImplementation(() => {
   return LineItemServiceMock
 })
-
-export const lineItemRepositoryMock = MockRepository({
-  create: jest.fn().mockImplementation((data) => {
-    return Object.assign(new LineItem(), data)
-  })
-}) as LineItemRepository
 
 export default mock

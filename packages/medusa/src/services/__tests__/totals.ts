@@ -1,60 +1,60 @@
 import { IdMap, MockManager } from "medusa-test-utils"
 import { ITaxCalculationStrategy } from "../../interfaces"
+import { AllocationType, DiscountRuleType } from "../../models"
 import TaxProviderService from "../tax-provider"
 import TotalsService from "../totals"
-import { cartRepositoryMock, discountRepositoryMock, lineItemRepositoryMock, orderRepositoryMock } from "../__mocks__"
+import { discountRepositoryMock } from "../__mocks__"
+
+import { lineItemRepositoryMock } from "../../repositories/__mocks__/line-item"
+import { orderRepositoryMock } from "../../repositories/__mocks__/order"
+import { cartRepositoryMock } from "../../repositories/__mocks__/cart"
 
 const discounts = {
   total10Percent: discountRepositoryMock.create({
-    id: "total10",
     code: "10%OFF",
     rule: {
-      type: "percentage",
-      allocation: "total",
+      type: DiscountRuleType.PERCENTAGE,
+      allocation: AllocationType.TOTAL,
       value: 10,
     },
     regions: [{ id: "fr" }],
   }),
   item2Fixed: discountRepositoryMock.create({
-    id: "item2Fixed",
     code: "MEDUSA",
     rule: {
-      type: "fixed",
-      allocation: "item",
+      type: DiscountRuleType.FIXED,
+      allocation: AllocationType.ITEM,
       value: 2,
       // TODO: Add conditions relation
     },
     regions: [{ id: "fr" }],
   }),
   item10Percent: discountRepositoryMock.create({
-    id: "item10Percent",
     code: "MEDUSA",
     rule: {
-      type: "percentage",
-      allocation: "item",
+      type: DiscountRuleType.PERCENTAGE,
+      allocation: AllocationType.ITEM,
       value: 10,
       // TODO: Add conditions relation
     },
     regions: [{ id: "fr" }],
   }),
   total10Fixed: discountRepositoryMock.create({
-    id: "total10Fixed",
     code: "MEDUSA",
     rule: {
-      type: "fixed",
-      allocation: "total",
+      type: DiscountRuleType.FIXED,
+      allocation: AllocationType.TOTAL,
       value: 10,
       // TODO: Add conditions relation
     },
     regions: [{ id: "fr" }],
   }),
   expiredDiscount: discountRepositoryMock.create({
-    id: "expired",
     code: "MEDUSA",
     ends_at: new Date("December 17, 1995 03:24:00"),
     rule: {
-      type: "fixed",
-      allocation: "item",
+      type: DiscountRuleType.FIXED,
+      allocation: AllocationType.ITEM,
       value: 10,
       // TODO: Add conditions relation
     },
@@ -63,7 +63,7 @@ const discounts = {
 }
 
 const applyDiscount = (cart, discount) => {
-  let newCart = { ...cart }
+  const newCart = { ...cart }
   if (newCart.items) {
     newCart.items = cart.items.map((item) => {
       return {
@@ -86,10 +86,10 @@ const applyDiscount = (cart, discount) => {
 const calculateAdjustment = (cart, lineItem, discount) => {
   let amount = discount.rule.value * lineItem.quantity
 
-  let lineItemPrice = lineItem.unit_price * lineItem.quantity
+  const lineItemPrice = lineItem.unit_price * lineItem.quantity
 
   if (discount.rule.type === "fixed" && discount.rule.allocation === "total") {
-    let subtotal = cart.items.reduce(
+    const subtotal = cart.items.reduce(
       (total, item) => total + item.unit_price * item.quantity,
       0
     )
@@ -109,7 +109,7 @@ describe("TotalsService", () => {
       },
     } as unknown as TaxProviderService,
     taxCalculationStrategy: {} as ITaxCalculationStrategy,
-    manager: MockManager
+    manager: MockManager,
   }
 
   describe("getAllocationItemDiscounts", () => {
@@ -136,14 +136,14 @@ describe("TotalsService", () => {
             adjustments: [{ amount: 10 }],
           },
         ],
-      });
+      })
 
       const discount = discountRepositoryMock.create({
         rule: {
-          type: "percentage",
+          type: DiscountRuleType.PERCENTAGE,
           value: 10,
         },
-      });
+      })
 
       res = totalsService.getAllocationItemDiscounts(discount, cart)
 
@@ -181,15 +181,15 @@ describe("TotalsService", () => {
             adjustments: [{ amount: 90 }],
           },
         ],
-      });
+      })
 
       const discount = discountRepositoryMock.create({
         rule: {
-          type: "fixed",
+          type: DiscountRuleType.FIXED,
           value: 9,
           // TODO: Add conditions relation
         },
-      });
+      })
 
       res = totalsService.getAllocationItemDiscounts(discount, cart)
 
@@ -272,7 +272,7 @@ describe("TotalsService", () => {
           quantity: 10,
         },
       ],
-    });
+    })
 
     beforeEach(() => {
       jest.clearAllMocks()
@@ -281,7 +281,7 @@ describe("TotalsService", () => {
 
     it("calculate total percentage discount", async () => {
       discountCart.discounts.push(discounts.total10Percent)
-      let cart = applyDiscount(discountCart, discounts.total10Percent)
+      const cart = applyDiscount(discountCart, discounts.total10Percent)
       res = totalsService.getDiscountTotal(cart)
 
       expect(res).toEqual(28)
@@ -291,7 +291,7 @@ describe("TotalsService", () => {
 
     it("calculate item fixed discount", async () => {
       discountCart.discounts.push(discounts.item2Fixed)
-      let cart = applyDiscount(discountCart, discounts.item2Fixed)
+      const cart = applyDiscount(discountCart, discounts.item2Fixed)
       res = totalsService.getDiscountTotal(cart)
 
       expect(res).toEqual(40)
@@ -299,7 +299,7 @@ describe("TotalsService", () => {
 
     it("calculate item percentage discount", async () => {
       discountCart.discounts.push(discounts.item10Percent)
-      let cart = applyDiscount(discountCart, discounts.item10Percent)
+      const cart = applyDiscount(discountCart, discounts.item10Percent)
       res = totalsService.getDiscountTotal(cart)
 
       expect(res).toEqual(28)
@@ -307,7 +307,7 @@ describe("TotalsService", () => {
 
     it("calculate total fixed discount", async () => {
       discountCart.discounts.push(discounts.total10Fixed)
-      let cart = applyDiscount(discountCart, discounts.total10Fixed)
+      const cart = applyDiscount(discountCart, discounts.total10Fixed)
       res = totalsService.getDiscountTotal(cart)
 
       expect(res).toEqual(10)
@@ -451,7 +451,7 @@ describe("TotalsService", () => {
 
     it("calculates refund with item fixed discount", async () => {
       orderToRefund.discounts.push(discounts.item2Fixed)
-      let order = applyDiscount(orderToRefund, discounts.item2Fixed)
+      const order = applyDiscount(orderToRefund, discounts.item2Fixed)
       res = totalsService.getRefundTotal(order, [
         lineItemRepositoryMock.create({
           id: "line2",
@@ -471,7 +471,7 @@ describe("TotalsService", () => {
 
     it("calculates refund with item percentage discount", async () => {
       orderToRefund.discounts.push(discounts.item10Percent)
-      let order = applyDiscount(orderToRefund, discounts.item10Percent)
+      const order = applyDiscount(orderToRefund, discounts.item10Percent)
       res = totalsService.getRefundTotal(order, [
         lineItemRepositoryMock.create({
           id: "line2",
@@ -490,7 +490,7 @@ describe("TotalsService", () => {
     })
 
     it("throws if line items to return is not in order", async () => {
-      const work = () =>
+      const work = (): number =>
         totalsService.getRefundTotal(orderToRefund, [
           lineItemRepositoryMock.create({
             id: "notInOrder",
@@ -547,7 +547,7 @@ describe("TotalsService", () => {
       taxCalculationStrategy: {
         calculate: calculateMock,
       } as ITaxCalculationStrategy,
-      manager: MockManager
+      manager: MockManager,
     }
 
     beforeEach(() => {

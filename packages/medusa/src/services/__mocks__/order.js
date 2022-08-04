@@ -1,6 +1,4 @@
-import { IdMap, MockRepository } from "medusa-test-utils"
-import { Order } from "../../models"
-import { OrderRepository } from "../../repositories/order"
+import { IdMap } from "medusa-test-utils"
 
 export const orders = {
   testOrder: {
@@ -60,7 +58,7 @@ export const orders = {
     ],
     status: "",
     fulfillment_status: "",
-    payment_status: ""
+    payment_status: "",
   },
   processedOrder: {
     id: IdMap.getId("processed-order"),
@@ -227,11 +225,5 @@ export const OrderServiceMock = {
 const mock = jest.fn().mockImplementation(() => {
   return OrderServiceMock
 })
-
-export const orderRepositoryMock = MockRepository({
-  create: jest.fn().mockImplementation((data) => {
-    return Object.assign(new Order(), data)
-  })
-}) as OrderRepository
 
 export default mock

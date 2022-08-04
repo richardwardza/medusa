@@ -394,10 +394,4 @@ const mock = jest.fn().mockImplementation(() => {
   return CartServiceMock
 })
 
-export const cartRepositoryMock = MockRepository({
-  create: jest.fn().mockImplementation((data) => {
-    return Object.assign(new Cart(), data)
-  })
-}) as CartRepository;
-
 export default mock
