@@ -1,12 +1,6 @@
 import { IdMap, MockManager, MockRepository } from "medusa-test-utils"
 import UserService from "../user"
-
-const eventBusService = {
-  emit: jest.fn(),
-  withTransaction: function() {
-    return this
-  },
-}
+import { EventBusServiceMock } from "../__mocks__"
 
 describe("UserService", () => {
   describe("retrieve", () => {
@@ -15,6 +9,7 @@ describe("UserService", () => {
     })
     const userService = new UserService({
       manager: MockManager,
+      eventBusService: EventBusServiceMock,
       userRepository,
     })
 
@@ -43,7 +38,7 @@ describe("UserService", () => {
     const userService = new UserService({
       manager: MockManager,
       userRepository,
-      eventBusService,
+      eventBusService: EventBusServiceMock,
     })
 
     beforeEach(async () => {
@@ -54,8 +49,7 @@ describe("UserService", () => {
       await userService.create(
         {
           email: "oliver@test.dk",
-          name: "Oliver",
-          password_hash: "hashedpassword",
+          first_name: "Oliver",
         },
         "password"
       )
@@ -63,11 +57,11 @@ describe("UserService", () => {
       expect(userRepository.create).toHaveBeenCalledTimes(1)
       expect(userRepository.create).toHaveBeenCalledWith({
         email: "oliver@test.dk",
-        name: "Oliver",
+        first_name: "Oliver",
         password_hash: expect.stringMatching(/.{128}$/),
       })
 
-      expect(eventBusService.emit).toHaveBeenCalledWith(
+      expect(EventBusServiceMock.emit).toHaveBeenCalledWith(
         UserService.Events.CREATED,
         {
           id: expect.any(String),
@@ -83,7 +77,7 @@ describe("UserService", () => {
     const userService = new UserService({
       manager: MockManager,
       userRepository,
-      eventBusService,
+      eventBusService: EventBusServiceMock,
     })
 
     beforeEach(async () => {
@@ -103,7 +97,7 @@ describe("UserService", () => {
         last_name: "Stark",
       })
 
-      expect(eventBusService.emit).toHaveBeenCalledWith(
+      expect(EventBusServiceMock.emit).toHaveBeenCalledWith(
         UserService.Events.UPDATED,
         {
           id: IdMap.getId("ironman"),
@@ -126,7 +120,7 @@ describe("UserService", () => {
         },
       })
 
-      expect(eventBusService.emit).toHaveBeenCalledWith(
+      expect(EventBusServiceMock.emit).toHaveBeenCalledWith(
         UserService.Events.UPDATED,
         {
           id: IdMap.getId("ironman"),
@@ -166,7 +160,7 @@ describe("UserService", () => {
     const userService = new UserService({
       manager: MockManager,
       userRepository,
-      eventBusService,
+      eventBusService: EventBusServiceMock,
     })
 
     beforeEach(async () => {

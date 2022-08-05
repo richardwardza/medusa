@@ -461,7 +461,7 @@ export const CartModelMock = {
   }),
 }
 
-export const cartRepositoryMock = MockRepository({
+export const CartRepositoryMock = MockRepository({
   create: jest.fn().mockImplementation((data) => {
     return Object.assign(new Cart(), data)
   })

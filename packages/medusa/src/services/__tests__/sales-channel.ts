@@ -1,10 +1,9 @@
 import { IdMap, MockManager, MockRepository } from "medusa-test-utils"
 import SalesChannelService from "../sales-channel"
 import { EventBusServiceMock } from "../__mocks__/event-bus"
-import { EventBusService, ProductService, StoreService } from "../index"
+import { EventBusService, StoreService } from "../index"
 import { FindConditions, FindOneOptions } from "typeorm"
 import { SalesChannel } from "../../models"
-import { ProductServiceMock } from "../__mocks__/product"
 import { store, StoreServiceMock } from "../__mocks__/store"
 
 describe("SalesChannelService", () => {

@@ -515,7 +515,7 @@ export const OrderModelMock = {
   }),
 }
 
-export const orderRepositoryMock = MockRepository({
+export const OrderRepositoryMock = MockRepository({
   create: jest.fn().mockImplementation((data) => {
     return Object.assign(new Order(), data)
   }),

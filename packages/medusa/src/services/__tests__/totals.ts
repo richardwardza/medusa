@@ -3,16 +3,15 @@ import { ITaxCalculationStrategy } from "../../interfaces"
 import { AllocationType, DiscountRuleType } from "../../models"
 import TaxProviderService from "../tax-provider"
 import TotalsService from "../totals"
-
 import {
-  lineItemRepositoryMock,
-  orderRepositoryMock,
-  cartRepositoryMock,
-  discountRepositoryMock,
+  LineItemRepositoryMock,
+  OrderRepositoryMock,
+  CartRepositoryMock,
+  DiscountRepositoryMock,
 } from "../../repositories/__mocks__"
 
 const discounts = {
-  total10Percent: discountRepositoryMock.create({
+  total10Percent: DiscountRepositoryMock.create({
     code: "10%OFF",
     rule: {
       type: DiscountRuleType.PERCENTAGE,
@@ -21,7 +20,7 @@ const discounts = {
     },
     regions: [{ id: "fr" }],
   }),
-  item2Fixed: discountRepositoryMock.create({
+  item2Fixed: DiscountRepositoryMock.create({
     code: "MEDUSA",
     rule: {
       type: DiscountRuleType.FIXED,
@@ -31,7 +30,7 @@ const discounts = {
     },
     regions: [{ id: "fr" }],
   }),
-  item10Percent: discountRepositoryMock.create({
+  item10Percent: DiscountRepositoryMock.create({
     code: "MEDUSA",
     rule: {
       type: DiscountRuleType.PERCENTAGE,
@@ -41,7 +40,7 @@ const discounts = {
     },
     regions: [{ id: "fr" }],
   }),
-  total10Fixed: discountRepositoryMock.create({
+  total10Fixed: DiscountRepositoryMock.create({
     code: "MEDUSA",
     rule: {
       type: DiscountRuleType.FIXED,
@@ -51,7 +50,7 @@ const discounts = {
     },
     regions: [{ id: "fr" }],
   }),
-  expiredDiscount: discountRepositoryMock.create({
+  expiredDiscount: DiscountRepositoryMock.create({
     code: "MEDUSA",
     ends_at: new Date("December 17, 1995 03:24:00"),
     rule: {
@@ -124,7 +123,7 @@ describe("TotalsService", () => {
     })
 
     it("calculates item with percentage discount", async () => {
-      const cart = cartRepositoryMock.create({
+      const cart = CartRepositoryMock.create({
         items: [
           {
             id: "test",
@@ -140,7 +139,7 @@ describe("TotalsService", () => {
         ],
       })
 
-      const discount = discountRepositoryMock.create({
+      const discount = DiscountRepositoryMock.create({
         rule: {
           type: DiscountRuleType.PERCENTAGE,
           value: 10,
@@ -169,7 +168,7 @@ describe("TotalsService", () => {
     })
 
     it("calculates item with fixed discount", async () => {
-      const cart = cartRepositoryMock.create({
+      const cart = CartRepositoryMock.create({
         items: [
           {
             id: "exists",
@@ -185,7 +184,7 @@ describe("TotalsService", () => {
         ],
       })
 
-      const discount = discountRepositoryMock.create({
+      const discount = DiscountRepositoryMock.create({
         rule: {
           type: DiscountRuleType.FIXED,
           value: 9,
@@ -248,7 +247,7 @@ describe("TotalsService", () => {
     let res
     const totalsService = new TotalsService(container)
 
-    const discountCart = cartRepositoryMock.create({
+    const discountCart = CartRepositoryMock.create({
       id: "discount_cart",
       discounts: [],
       region_id: "fr",
@@ -329,7 +328,7 @@ describe("TotalsService", () => {
     })
 
     it("returns 0 if no items are in cart", async () => {
-      const emptyCart = cartRepositoryMock.create({
+      const emptyCart = CartRepositoryMock.create({
         items: [],
         discounts: [discounts.total10Fixed],
       })
@@ -342,7 +341,7 @@ describe("TotalsService", () => {
   describe("getRefundTotal", () => {
     let res
     const totalsService = new TotalsService(container)
-    const orderToRefund = orderRepositoryMock.create({
+    const orderToRefund = OrderRepositoryMock.create({
       id: "refund-order",
       tax_rate: 25,
       items: [
@@ -393,7 +392,7 @@ describe("TotalsService", () => {
 
     it("calculates refund", async () => {
       res = totalsService.getRefundTotal(orderToRefund, [
-        lineItemRepositoryMock.create({
+        LineItemRepositoryMock.create({
           id: "line2",
           unit_price: 100,
           allow_discounts: true,
@@ -455,7 +454,7 @@ describe("TotalsService", () => {
       orderToRefund.discounts.push(discounts.item2Fixed)
       const order = applyDiscount(orderToRefund, discounts.item2Fixed)
       res = totalsService.getRefundTotal(order, [
-        lineItemRepositoryMock.create({
+        LineItemRepositoryMock.create({
           id: "line2",
           unit_price: 100,
           allow_discounts: true,
@@ -475,7 +474,7 @@ describe("TotalsService", () => {
       orderToRefund.discounts.push(discounts.item10Percent)
       const order = applyDiscount(orderToRefund, discounts.item10Percent)
       res = totalsService.getRefundTotal(order, [
-        lineItemRepositoryMock.create({
+        LineItemRepositoryMock.create({
           id: "line2",
           unit_price: 100,
           allow_discounts: true,
@@ -494,7 +493,7 @@ describe("TotalsService", () => {
     it("throws if line items to return is not in order", async () => {
       const work = (): number =>
         totalsService.getRefundTotal(orderToRefund, [
-          lineItemRepositoryMock.create({
+          LineItemRepositoryMock.create({
             id: "notInOrder",
             unit_price: 123,
             allow_discounts: true,
@@ -519,7 +518,7 @@ describe("TotalsService", () => {
     })
 
     it("calculates shipping", async () => {
-      const order = cartRepositoryMock.create({
+      const order = CartRepositoryMock.create({
         shipping_methods: [
           {
             price: 100,
@@ -694,7 +693,7 @@ describe("TotalsService", () => {
     })
 
     it("calculates total", async () => {
-      const order = cartRepositoryMock.create({
+      const order = CartRepositoryMock.create({
         region: {
           tax_rate: 25,
         },

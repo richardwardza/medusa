@@ -1,4 +1,5 @@
 import { IdMap } from "medusa-test-utils"
+import { RegionService } from "../.."
 
 export const regions = {
   testRegion: {
@@ -92,6 +93,6 @@ export const RegionServiceMock = {
 
 const mock = jest.fn().mockImplementation(() => {
   return RegionServiceMock
-})
+}) as unknown as RegionService
 
 export default mock

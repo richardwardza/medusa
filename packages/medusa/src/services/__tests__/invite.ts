@@ -1,29 +1,37 @@
 import InviteService from "../invite"
 import { MockManager, MockRepository } from "medusa-test-utils"
-import { EventBusServiceMock } from "../__mocks__/event-bus"
+import { EventBusServiceMock, UserServiceMock } from "../__mocks__/"
+import { UserRepositoryMock } from "../../repositories/__mocks__"
 import { MedusaError } from "medusa-core-utils"
+import { ConfigModule } from "../../types/global"
+import UserService from "../user"
 
-// const _MockManager
+const projectConfiguration = {
+  projectConfig: { jwt_secret: "superSecret" },
+} as ConfigModule;
+
+const inviteRepo = MockRepository({
+  find: (q) => {
+    return Promise.resolve([{ id: "invite-test-id" }])
+  },
+})
+
+const customManager = {
+  getCustomRepository: jest.fn(() => inviteRepo)
+} as unknown as MockManager;
 
 describe("InviteService", () => {
   describe("list", () => {
-    const inviteRepo = MockRepository({
-      find: (q) => {
-        return Promise.resolve([{ id: "invite-test-id" }])
-      },
-    })
 
     const inviteService = new InviteService(
       {
-        manager: { getCustomRepository: jest.fn(() => inviteRepo) },
-        userService: {},
-        userRepository: {},
+        manager: customManager,
+        userService: UserServiceMock.create({}),
+        userRepository: UserRepositoryMock,
         inviteRepository: inviteRepo,
         eventBusService: EventBusServiceMock,
       },
-      {
-        projectConfig: { jwt_secret: "superSecret" },
-      }
+      projectConfiguration
     )
 
     it("calls invite repository find", async () => {
@@ -41,15 +49,13 @@ describe("InviteService", () => {
   describe("token generation and validation", () => {
     const inviteService = new InviteService(
       {
-        manager: MockManager,
-        userService: {},
-        userRepository: {},
-        inviteRepository: {},
+        manager: customManager,
+        userService: UserServiceMock.create({}),
+        userRepository: UserRepositoryMock,
+        inviteRepository: inviteRepo,
         eventBusService: EventBusServiceMock,
       },
-      {
-        projectConfig: { jwt_secret: "superSecret" },
-      }
+      projectConfiguration
     )
 
     it("validating a signed token succeeds", () => {
@@ -110,7 +116,7 @@ describe("InviteService", () => {
       withTransaction: jest.fn().mockImplementation((m) => {
         return createMock
       }),
-    }
+    } as unknown as UserService
 
     const inviteService = new InviteService(
       {
@@ -120,9 +126,7 @@ describe("InviteService", () => {
         inviteRepository: inviteRepo,
         eventBusService: EventBusServiceMock,
       },
-      {
-        projectConfig: { jwt_secret: "superSecret" },
-      }
+      projectConfiguration
     )
 
     beforeEach(() => jest.clearAllMocks())
@@ -208,17 +212,19 @@ describe("InviteService", () => {
       },
     })
 
+    const customManager = {
+      getCustomRepository: jest.fn(() => inviteRepo)
+    } as unknown as MockManager;
+
     const inviteService = new InviteService(
       {
-        manager: { getCustomRepository: jest.fn(() => inviteRepo) },
-        userService: {},
-        userRepository: {},
+        manager: customManager,
+        userService: UserServiceMock.create({}),
+        userRepository: UserRepositoryMock,
         inviteRepository: inviteRepo,
         eventBusService: EventBusServiceMock,
       },
-      {
-        projectConfig: { jwt_secret: "superSecret" },
-      }
+      projectConfiguration
     )
 
     inviteService.generateToken = jest.fn()

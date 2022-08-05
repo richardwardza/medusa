@@ -153,7 +153,7 @@ export const DiscountModelMock = {
   }),
 }
 
-export const discountRepositoryMock = MockRepository({
+export const DiscountRepositoryMock = MockRepository({
   create: jest.fn().mockImplementation((data) => {
     return Object.assign(new Discount(), data)
   })

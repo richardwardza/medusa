@@ -1,4 +1,7 @@
 export * from "./cart"
 export * from "./discount"
+export * from "./event-bus"
 export * from "./line-item"
 export * from "./order"
+export * from "./region"
+export * from "./user"

@@ -1,4 +1,5 @@
 import { IdMap } from "medusa-test-utils"
+import { Region } from "../../models"
 
 export const regions = {
   testRegion: {
@@ -40,8 +41,10 @@ export const regions = {
 }
 
 export const RegionModelMock = {
-  create: jest.fn().mockReturnValue(Promise.resolve()),
-  updateOne: jest.fn().mockImplementation((query, update) => {}),
+  create: jest.fn().mockImplementation((data) => {
+    return Object.assign(new Region(), data)
+  }),
+  updateOne: jest.fn().mockImplementation((query, update) => { }),
   deleteOne: jest.fn().mockReturnValue(Promise.resolve()),
   findOne: jest.fn().mockImplementation(query => {
     if (query.countries === "SE") {

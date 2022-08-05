@@ -1,4 +1,6 @@
-import { IdMap } from "medusa-test-utils"
+import { IdMap,  MockRepository } from "medusa-test-utils"
+import { User } from "../../models"
+import { UserRepository } from "../user"
 
 export const users = {
   testUser: {
@@ -29,3 +31,10 @@ export const UserModelMock = {
     return Promise.resolve(undefined)
   }),
 }
+
+
+export const UserRepositoryMock = MockRepository({
+  create: jest.fn().mockImplementation((data) => {
+    return Object.assign(new User(), data)
+  })
+}) as UserRepository
