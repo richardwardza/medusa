@@ -3,7 +3,7 @@ import {
   useAdminUpdateCollection,
   useAdminDeleteCollection,
   useAdminAddProductsToCollection,
-  useAdminRemoveProductssFromCollection,
+  useAdminRemoveProductsFromCollection,
 } from "../../../../src/"
 import { renderHook } from "@testing-library/react-hooks"
 import { fixtures } from "../../../../mocks/data"
@@ -109,14 +109,14 @@ describe("useAdminAddProductsToCollection hook", () => {
   })
 })
 
-describe("useAdminRemoveProductssFromCollection hook", () => {
+describe("useAdminRemoveProductsFromCollection hook", () => {
   test("remove products from a collection", async () => {
     const remove = {
       product_ids: [fixtures.get("product").id],
     }
 
     const { result, waitFor } = renderHook(
-      () => useAdminRemoveProductssFromCollection(fixtures.get("product_collection").id),
+      () => useAdminRemoveProductsFromCollection(fixtures.get("product_collection").id),
       {
         wrapper: createWrapper(),
       }
