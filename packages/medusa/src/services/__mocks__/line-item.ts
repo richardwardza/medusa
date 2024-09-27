@@ -1,17 +1,19 @@
-import { IdMap } from "medusa-test-utils"
+import { IdMap, MockRepository } from "medusa-test-utils"
 import { MedusaError } from "medusa-core-utils"
+import { LineItem } from "../../models"
+import { LineItemRepository } from "../../repositories/line-item"
 
 export const LineItemServiceMock = {
-  withTransaction: function() {
+  withTransaction: function () {
     return this
   },
-  create: jest.fn().mockImplementation(data => {
+  create: jest.fn().mockImplementation((data) => {
     return Promise.resolve({ ...data })
   }),
-  update: jest.fn().mockImplementation(data => {
+  update: jest.fn().mockImplementation((data) => {
     return Promise.resolve({ ...data })
   }),
-  validate: jest.fn().mockImplementation(data => {
+  validate: jest.fn().mockImplementation((data) => {
     if (data.title === "invalid lineitem") {
       throw new Error(`"content" is required`)
     }

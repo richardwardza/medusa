@@ -1,6 +1,5 @@
 import { IdMap } from "medusa-test-utils"
 import { request } from "../../../../../helpers/test-request"
-import { ProductVariantServiceMock } from "../../../../../services/__mocks__/product-variant"
 
 describe("List variants", () => {
   describe("list variants successfull", () => {
@@ -15,7 +14,8 @@ describe("List variants", () => {
     })
 
     it("returns variants", () => {
-      expect(subject.body.variants[0].id).toEqual(IdMap.getId("testVariant"))
+      expect(subject?.body?.variants).not.toBeUndefined()
+      expect(subject?.body?.variants[0].id).toEqual(IdMap.getId("testVariant"))
     })
   })
 })

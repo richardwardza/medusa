@@ -147,7 +147,7 @@ class CartService extends TransactionBaseService {
   }: InjectedDependencies) {
     // eslint-disable-next-line prefer-rest-params
     super(arguments[0])
-
+    // console.log("CartService")
     this.manager_ = manager
     this.shippingMethodRepository_ = shippingMethodRepository
     this.cartRepository_ = cartRepository
